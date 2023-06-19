@@ -1,0 +1,395 @@
+---
+title: "Melanoma Incidence in Nordic Countries"
+subtitle: "With special focus on Norway"
+author: "Raju Rimal"
+date: "20 June, 2023"
+institute: "Vetinst Interview"
+code-overflow: scroll
+date-format: "DD MMMM YYYY"
+bibliography: References.bib
+citations-hover: true
+preview-links: true
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: "#>" 
+execute: 
+  echo: false
+  warning: false
+format: 
+  revealjs:
+    transition: none
+    background-transition: none
+    template-partials:
+      - title-slide.html
+    theme: [default, custom.scss]
+    title-slide-attributes:
+      data-background-color: "#FCFCFC"
+      data-background-image: Images/melo.svg
+      data-background-opacity: "0.75"
+      data-background-size: auto 80%
+      data-background-position: 90% center
+editor_options: 
+  chunk_output_type: console
+nocite: "@*"
+---
+
+## Melanoma {.ai .columns background-image="Images/AI/Melanoma-Cell-2.jpg" background-position="120%" background-size="auto 100%" background-color="floralwhite"}
+
+```{r}
+#| include: false
+pkgs <- c("ggplot2", "data.table", "purrr", "gt")
+for (pkg in pkgs) require(pkg, character.only = TRUE)
+options(
+  digits = 4,
+  scipen = 4
+)
+```
+
+::: {.column width="50%"}
+::: {.callout-note appearance="simple" icon="false"}
+-   Cutaneous melanoma (CM) is the most aggressive and lethal form of skin cancer.
+:::
+
+::: {.callout-warning appearance="simple" icon="false"}
+- It can be cured if caught and treated early but if left untreated, it may spread to other parts and can be fatal.
+
+- Melanoma has increased dramatically in fair skinned population worldwide.
+:::
+::: {.callout-important appearance="simple" icon="false"}
+- Norway is ranked fifth in incidence and third in mortality worldwide.
+:::
+:::
+
+::: {.column width="50%"}
+:::
+
+# Research Objective  {.center .middle #aim}
+
+To explore ***melanoma incidence*** and ***mortality*** in nordic countries by ***sex*** and their ***trend*** over 40-years period from 1980--2020.
+
+::: {.callout-tip appearance="default" icon="true"}
+### Research Questions
+::: {.box-text-left style="text-align: left; font-size: 110%;"}
+1. Is there similar increase in melanoma incidence and mortality in Nordic countries?
+
+2. Do men and women have similar incidence and mortality due to melanoma?
+:::
+
+:::
+
+# Data, Materials, and Methods {.middle .center .huge}
+
+## {background-image="Images/NordCan-Screenshot.png" background-size="100% auto" background-position="center center"}
+
+## Data collection ([NordCan 2.0](https://nordcan.iarc.fr/en))
+
+::: columns
+::: {.column width="40%"}
+![](Images/NordCan-JSON.png)
+:::
+::: {.column width="60%"}
+
+```{r}
+data <- readRDS("Data/Adj-Rates.Rds")
+data[, country := factor(
+  country, 
+  level = c("Norway", "Sweden", "Denmark", "Finland")
+)]
+data[, id := .I]
+setcolorder(data, "id")
+
+gt::gt(head(data[, 1:5]))
+gt::gt(head(data[, 6:12])) %>% 
+  gt::fmt_number(columns = 2:5)
+```
+:::
+
+:::
+
+::: aside
+::: {.smaller}
+**API**: `https://gco.iarc.fr/gateway_prod/api/nordcan/v2/92/data/population/{type}/{sex}/({country})/({cancer})/?ages_group=5_17&year_start=1980&year_end=2020&year_grouped=0`
+:::
+:::
+
+
+## {background-image="Images/NordCan-Map.png" background-size="auto 100%" background-position="right"}
+
+::: columns
+::: column
+
+### Nordic countries included {style="font-size: 150%;"}
+
+::: {.grid style="display: grid; grid-row-gap: 20px;"}
+
+🇳🇴 Norway
+
+🇸🇪 Sweden
+
+🇩🇰 Denmark
+
+🇫🇮 Finland
+
+:::
+
+:::
+
+::: column
+:::
+:::
+
+## Methods
+
+::: {.grid style="display: grid; height: 90%; align-content: space-between;"}
+
+::: {.grid-item .smaller}
+**Crude Rate:**
+
+$$
+\mathtt{rate} = \frac{\texttt{# number of cases}}{\texttt{# persons exposed}}
+$$
+:::
+
+::: grid-item
+**Poisson regression model:**
+
+```{r}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "1-2,4-5"
+model <- glm(
+  formula = crude_rate ~ year + offset(log(population)), 
+  data = melanoma,
+  family = poisson(link = "log")
+)
+```
+:::
+
+::: grid-item
+
+**Segmented regression model:**
+
+```{r}
+#| eval: false
+#| echo: true
+sgmt_model <- segmented(model, npsi = 2)
+```
+
+:::
+:::
+
+
+# Results {.huge .middle .center}
+
+## Incidence (Norway and Finland)
+
+::: {.columns .center .grid style="grid-template-columns: 1fr 2fr; align-items: center;"}
+
+::: column
+Norway has higher melanoma incidence and mortality than Finland.
+:::
+
+::: column
+![](Plots/Line-Nor-Fin.svg)
+:::
+
+:::
+
+## Incidence (Norway and Finland)
+
+::: {.columns .center .grid style="grid-template-columns: 1fr 2fr; align-items: center;"}
+
+::: column
+Norway has higher melanoma incidence and mortality than Finland.
+:::
+
+::: column
+![](Plots/GLM-Nor-Fin.svg)
+:::
+
+:::
+
+## Incidence (Norway and Finland)
+
+::: {.columns .center .grid style="grid-template-columns: 1fr 2fr; align-items: center;"}
+
+::: column
+Norway has higher melanoma incidence and mortality than Finland.
+:::
+
+::: column
+![](Plots/Sgmt-Nor-Fin.svg)
+:::
+
+:::
+
+## Comparison (All countries)
+
+::: {.columns .center .grid style="grid-template-columns: 2fr 1fr; align-items: end; text-align: left;"}
+::: column
+![](Plots/GLM-all.svg)
+:::
+::: column
+::: {.callout-tip appearance="minimal" icon="false"}
+Finland has lowest melanoma incidence and mortality in both sexes
+:::
+::: {.callout-important appearance="minimal" icon="false"}
+Norway has highest melanoma mortality followed by Sweden in both sexes
+:::
+::: {.callout-important appearance="minimal" icon="false"}
+Denmark has surpassed both Norway and Sweden in melanoma incidence in the recent years
+:::
+:::
+:::
+
+## Comparison (All countries)
+
+::: {.columns .center .grid style="grid-template-columns: 2fr 1fr; align-items: end; text-align: left;"}
+::: column
+![](Plots/Sgmt-all.svg)
+:::
+::: column
+::: {.callout-note appearance="minimal" icon="false"}
+A plateau period was observed in melanoma incidence in Norway.
+:::
+::: {.callout-important appearance="minimal" icon="false"}
+Most countries has raise in melanoma incidence after 2005.
+:::
+::: {.callout-tip appearance="minimal" icon="false"}
+A declining melanoma moratlity was observed in all countries in recent years. 
+:::
+:::
+:::
+
+## Model {.smaller}
+
+::: columns
+::: column
+### Annual percentge change (APC)
+
+![](Plots/model-summary-plot.svg)
+
+:::
+::: column
+### APC within segments
+
+```{r}
+a_apc <- readRDS("Results/APC.Rds")
+apc <- copy(a_apc[[1]])
+aapc <- copy(a_apc[[2]])
+apc[, label_period := glue::glue_data(.SD, "{label}<br>{psi}")]
+apc[, segment := gsub("slope", "", segment)]
+```
+
+```{r}
+apc[country %in% c("Norway", "Denmark")] %>% 
+  dcast.data.table(
+  country + segment ~ type + sex,
+  value.var = "label_period"
+) %>% gt::gt(
+  id = "apc-table",
+  rowname_col = "segment",
+  groupname_col = "country"
+) %>% gt::tab_spanner_delim("_") %>% 
+  gt::fmt_markdown(everything()) %>% 
+  gt::sub_missing(everything(), missing_text = "-") %>%
+  gt::tab_stubhead("Segment") %>% 
+  gt::tab_options(
+    data_row.padding = "0px",
+    table.width = "100%",
+    table.font.size = "small",
+    column_labels.font.weight = "bold",
+    row_group.font.weight = "bold"
+  )
+```
+
+:::
+:::
+
+## Model {.smaller}
+
+::: columns
+::: column
+**Incidence model:**
+
+```{r}
+#| echo: true
+#| code-fold: show
+mdl_inc <- glm(
+  data = data,
+  formula = count ~ year + sex + country,
+  offset = log(population),
+  family = poisson(link = "log"),
+  subset = type == "Incidence"
+)
+```
+:::
+
+::: column
+
+**Mortality model**
+
+```{r}
+#| echo: true
+#| code-fold: show
+mdl_mor <- glm(
+  data = data,
+  formula = count ~ year + sex + country,
+  offset = log(population),
+  family = poisson(link = "log"),
+  subset = type == "Mortality"
+)
+```
+
+:::
+:::
+
+::: panel-tabset
+### Incidence model summary
+```{r, prompt=FALSE, comment = ""}
+#| echo: true
+broom::tidy(mdl_inc, conf.int = TRUE, exponentiate = TRUE) %>% 
+  modify_at(c(2:4, 6:7), round, 3)
+```
+
+### Mortality model summary
+```{r, prompt=FALSE, comment = ""}
+#| echo: true
+broom::tidy(mdl_mor, conf.int = TRUE, exponentiate = TRUE) %>% 
+  modify_at(c(2:4, 6:7), round, 3)
+```
+:::
+
+
+# Wrap-up {.center .middle .huge}
+
+## Summary {.dark background-image="Images/Drammen-Stasjon.jpg" background-position="right" background-size="auto 100%"}
+
+::: {.columns .grid style="grid-template-columns: 1fr 1fr; align-items: end;"}
+::: column
+
+::: {.callout-note appearance="simple" icon="false"}
+- Melanoma incidence and moratlity is increasing in all countries
+- Norway has highest mortality rate through out the period and has highest increase in both incidence and mortality.
+:::
+::: {.callout-important appearance="simple" icon="false"}
+- Melanoma incidence increased rapidly in Denmark between 2002 and 2011 in women and 2004-2009 in men surpassing Norway.
+:::
+
+::: {.callout-tip appearance="simple" icon="false"}
+- Mortality is decreasing in all countries in recent period.
+:::
+:::
+
+::: column
+:::
+:::
+
+
+##  {background-image="Images/Thank-You.png" background-size="auto 90%"}
+
+## References
+
+::: {#refs}
+:::
