@@ -3,7 +3,6 @@ title: "Melanoma Incidence in Nordic Countries"
 subtitle: "With special focus on Norway"
 author: "Raju Rimal"
 date: "20 June, 2023"
-institute: "Vetinst Interview"
 code-overflow: scroll
 date-format: "DD MMMM YYYY"
 bibliography: References.bib
@@ -159,7 +158,7 @@ $$
 #| echo: true
 #| code-line-numbers: "1-2,4-5"
 model <- glm(
-  formula = crude_rate ~ year + offset(log(population)), 
+  formula = count ~ year + offset(log(population)), 
   data = melanoma,
   family = poisson(link = "log")
 )
@@ -392,4 +391,10 @@ broom::tidy(mdl_mor, conf.int = TRUE, exponentiate = TRUE) %>%
 ## References
 
 ::: {#refs}
+:::
+
+::: aside
+::: {.link style="padding-top: 10px;"}
+[URL: `https://therimalaya.github.io/Nordic-Melanoma`](https://therimalaya.github.io/Nordic-Melanoma)
+:::
 :::
