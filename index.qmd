@@ -8,6 +8,7 @@ date-format: "DD MMMM YYYY"
 bibliography: References.bib
 citations-hover: true
 preview-links: true
+favicon: favicon
 knitr:
   opts_chunk: 
     collapse: true
@@ -79,7 +80,8 @@ To explore ***melanoma incidence*** and ***mortality*** in nordic countries by *
 
 # Data, Materials, and Methods {.middle .center .huge}
 
-## {background-image="Images/NordCan-Screenshot.png" background-size="100% auto" background-position="center center"}
+## {.blank}
+![NordCan 2.0 Website](Images/NordCan-Screenshot.png){width="100%"}
 
 ## Data collection ([NordCan 2.0](https://nordcan.iarc.fr/en))
 
